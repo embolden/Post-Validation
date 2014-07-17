@@ -14,7 +14,6 @@ class Post_Validation {
 	 */
 	function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_script' ) );
-
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'add_options' ) );
 	}
@@ -28,7 +27,7 @@ class Post_Validation {
 		}
 
 		wp_enqueue_script( 'post-validation', plugins_url( '/js/post-validation.js', __FILE__ ), array( 'jquery' ) );
-		wp_localize_script( 'post-validation', 'post_validation_to_validate', get_option( 'post-validation-to-validate' ) );
+		wp_localize_script( 'post-validation', 'post_validation_to_validate', get_option( 'post-validation-to-validate-' . get_post_type() ) );
 	}
 
 	/**
@@ -79,13 +78,31 @@ class Post_Validation {
 			'post-validation'                                      // Menu Slug
 		);
 
-		add_settings_field(
-			'post-validation-to-validate',                        // Field ID
-			'Validate',                                           // Field title
-			array( $this, 'fields_to_validate_field_callback' ),  // Callback
-			'post-validation',                                    // Menu slug
-			'post-validation-section'                             // Section ID
+		$post_types = array_keys( get_post_types( array( 'public' => true ), 'names', 'and' ) );
+		// var_dump( $post_types );
+
+		$will_validate = array(
+			'post',
+			'page',
 		);
+
+		foreach( $post_types as $post_type ) {
+			if( in_array( $post_type, $will_validate ) ) {
+				register_setting(
+					'post-validation-options',                   // Options Group
+					'post-validation-to-validate-' . $post_type // Option Name
+				);
+
+				add_settings_field(
+					'post-validation-to-validate-' . $post_type,                  // Field ID
+					'Validate ' . ucwords( str_replace( '_', ' ', $post_type ) ), // Field title
+					array( $this, 'fields_to_validate_field_callback' ),          // Callback
+					'post-validation',                                            // Menu slug
+					'post-validation-section',                                    // Section ID
+					$post_type                                                    // Callback args
+				);
+			}
+		}
 	}
 
 	/**
@@ -101,17 +118,19 @@ class Post_Validation {
 	 * @link: http://kovshenin.com/2012/the-wordpress-settings-api/
 	 * @link: http://bit.ly/1r71iqP
 	 */
-	function fields_to_validate_field_callback() {
-		$post_type_supports = get_all_post_type_supports( 'post' );
+	function fields_to_validate_field_callback( $post_type ) {
+		// var_dump( $post_type );
+
+		$post_type_supports = get_all_post_type_supports( $post_type );
 		// var_dump( $post_type_supports );
 
-		$post_type_taxonomies = get_object_taxonomies( 'post', 'names' );
+		$post_type_taxonomies = get_object_taxonomies( $post_type, 'names' );
 		// var_dump( $post_type_taxonomies );
 
 		$supports = array_merge( array_keys( $post_type_supports ), $post_type_taxonomies );
 		// var_dump( $supports );
 
-		$options = get_option( 'post-validation-to-validate' );
+		$options = get_option( 'post-validation-to-validate-' . $post_type );
 		// var_dump( $options );
 
 		$can_validate = array(
@@ -123,15 +142,23 @@ class Post_Validation {
 			// 'post_tag',
 		);
 
-		echo '<ul>';
+		ob_start(); ?>
 
-		foreach( $supports as $support ) {
-			if( in_array( $support, $can_validate ) ) {
-				echo '<li><label for="post-validation-' . $support . '"><input name="post-validation-to-validate[]" id="post-validation-' . $support . '" type="checkbox" value="' . $support . '" ' . (in_array( $support, (array) $options ) ? 'checked="checked"' : '' ) . '>' . ucwords( str_replace('_', ' ', $support ) ) . '</label></li>';
-			}
-		}
+		<ul>
+		<?php foreach( $supports as $support ) : ?>
+			<?php if( in_array( $support, $can_validate ) ) : ?>
+				<li>
+					<label for="post-validation-<?php echo $post_type . '-' . $support; ?>">
+						<input name="post-validation-to-validate-<?php echo $post_type; ?>[]" id="post-validation-<?php echo $post_type . '-' . $support; ?>" type="checkbox" value="<?php echo $support; ?>" <?php echo ( in_array( $support, (array) $options ) ? 'checked="checked"' : '' ); ?>><?php echo ucwords( str_replace('_', ' ', $support ) ); ?>
+					</label>
+				</li>
+			<?php endif; ?>
+		<?php endforeach; ?>
+		</ul>
 
-		echo '</ul>';
+		<?php
+		$output = ob_get_clean();
+		echo $output;
 	}
 }
 new Post_Validation();

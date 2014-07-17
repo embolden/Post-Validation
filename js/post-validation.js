@@ -1,11 +1,11 @@
 jQuery(document).ready(function($) {
 
-	// console.log( post_validation_to_validate );
+	console.log( post_validation_to_validate );
 
 	$('#post').submit(function( event ) {
 
 		// Validate Title
-		if( $.inArray( 'title', post_validation_to_validate ) ) {
+		if( $.inArray( 'title', post_validation_to_validate ) !== -1 ) {
 			var title = $('#title').val();
 
 			if( title.length === 0 ) {
@@ -17,7 +17,7 @@ jQuery(document).ready(function($) {
 		}
 
 		// Validate Content
-		if( $.inArray( 'editor', post_validation_to_validate ) ) {
+		if( $.inArray( 'editor', post_validation_to_validate ) !== -1 ) {
 			var content = $('#content').val();
 
 			if( 0 === content.length ) {
@@ -29,7 +29,7 @@ jQuery(document).ready(function($) {
 		}
 
 		// Validate Categories
-		if( $.inArray( 'category', post_validation_to_validate ) ) {
+		if( $.inArray( 'category', post_validation_to_validate ) !== -1 ) {
 			var categories = $('#categorychecklist');
 			var categories_checked = false;
 
