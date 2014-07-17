@@ -81,10 +81,12 @@ class Post_Validation {
 		$post_types = array_keys( get_post_types( array( 'public' => true ), 'names', 'and' ) );
 		// var_dump( $post_types );
 
-		$will_validate = array(
-			'post',
-			'page',
-		);
+		$will_validate = apply_filters( 
+			'post_validation_post_types_to_validate', 
+			array(
+				'post',
+				'page',
+			) );
 
 		foreach( $post_types as $post_type ) {
 			if( in_array( $post_type, $will_validate ) ) {
@@ -133,14 +135,15 @@ class Post_Validation {
 		$options = get_option( 'post-validation-to-validate-' . $post_type );
 		// var_dump( $options );
 
-		$can_validate = array(
-			'title',
-			'editor',
-			// 'thumbnail',
-			// 'excerpt',
-			'category',
-			// 'post_tag',
-		);
+		$can_validate = apply_filters(
+			'post_validation_fields_to_validate', array(
+				'title',
+				'editor',
+				'thumbnail',
+				'excerpt',
+				'category',
+				'post_tag',
+		) );
 
 		ob_start(); ?>
 

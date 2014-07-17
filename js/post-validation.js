@@ -5,10 +5,10 @@ jQuery(document).ready(function($) {
 	$('#post').submit(function( event ) {
 
 		// Validate Title
-		if( $.inArray( 'title', post_validation_to_validate ) !== -1 ) {
+		if( -1 !== $.inArray( 'title', post_validation_to_validate ) ) {
 			var title = $('#title').val();
 
-			if( title.length === 0 ) {
+			if( 0 === title.length ) {
 				event.preventDefault();
 				post_validation_add_error_message( 'post-validation-title', 'Post title is a required field.' );
 			}else {
@@ -17,7 +17,7 @@ jQuery(document).ready(function($) {
 		}
 
 		// Validate Content
-		if( $.inArray( 'editor', post_validation_to_validate ) !== -1 ) {
+		if( -1 !== $.inArray( 'editor', post_validation_to_validate ) ) {
 			var content = $('#content').val();
 
 			if( 0 === content.length ) {
@@ -29,7 +29,7 @@ jQuery(document).ready(function($) {
 		}
 
 		// Validate Categories
-		if( $.inArray( 'category', post_validation_to_validate ) !== -1 ) {
+		if( -1 !== $.inArray( 'category', post_validation_to_validate ) ) {
 			var categories = $('#categorychecklist');
 			var categories_checked = false;
 
@@ -45,6 +45,43 @@ jQuery(document).ready(function($) {
 				post_validation_add_error_message( 'post-validation-category', 'At least one category is a required.' );
 			}else {
 				post_validation_hide_error_message( 'post-validation-category' );
+			}
+		}
+
+		// Validate Featured Image
+		if( -1 !== $.inArray( 'thumbnail', post_validation_to_validate ) ) {
+			var thumbnail = $('#set-post-thumbnail').find('img');
+			console.log( thumbnail );
+
+			if( 0 === thumbnail.length ) {
+				event.preventDefault();
+				post_validation_add_error_message( 'post-validation-thumbnail', 'Featured image is required.' );
+			}else {
+				post_validation_hide_error_message( 'post-validation-thumbnail' );
+			}
+		}
+
+		// Validate Excerpt
+		if( -1 !== $.inArray( 'excerpt', post_validation_to_validate ) ) {
+			var excerpt = $('#excerpt').val();
+
+			if( 0 === excerpt.length ) {
+				event.preventDefault();
+				post_validation_add_error_message( 'post-validation-excerpt', 'Excerpt is a required fields.' );
+			}else {
+				post_validation_hide_error_message( 'post-validation-excerpt' );
+			}
+		}
+
+		// Validate Tags
+		if( -1 !== $.inArray( 'post_tag', post_validation_to_validate ) ) {
+			var tags = $('#post_tag').find('.tagchecklist span');
+
+			if( 0 === tags.length ) {
+				event.preventDefault();
+				post_validation_add_error_message( 'post-validation-tags', 'At least one tag is a required.' );
+			}else {
+				post_validation_hide_error_message( 'post-validation-tags' );
 			}
 		}
 
