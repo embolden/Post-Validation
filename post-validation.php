@@ -91,7 +91,7 @@ class Post_Validation {
 		foreach( $post_types as $post_type ) {
 			if( in_array( $post_type, $will_validate ) ) {
 				register_setting(
-					'post-validation-options',                   // Options Group
+					'post-validation-options',                  // Options Group
 					'post-validation-to-validate-' . $post_type // Option Name
 				);
 
@@ -130,6 +130,8 @@ class Post_Validation {
 		// var_dump( $post_type_taxonomies );
 
 		$supports = array_merge( array_keys( $post_type_supports ), $post_type_taxonomies );
+
+		$supports = apply_filters( "post_validation_{$post_type}_supports", apply_filters( 'post_validation_supports', $supports ), $post_type );
 		// var_dump( $supports );
 
 		$options = get_option( 'post-validation-to-validate-' . $post_type );
@@ -147,17 +149,15 @@ class Post_Validation {
 
 		ob_start(); ?>
 
-		<ul>
+		<fieldset>
 		<?php foreach( $supports as $support ) : ?>
 			<?php if( in_array( $support, $can_validate ) ) : ?>
-				<li>
 					<label for="post-validation-<?php echo $post_type . '-' . $support; ?>">
 						<input name="post-validation-to-validate-<?php echo $post_type; ?>[]" id="post-validation-<?php echo $post_type . '-' . $support; ?>" type="checkbox" value="<?php echo $support; ?>" <?php echo ( in_array( $support, (array) $options ) ? 'checked="checked"' : '' ); ?>><?php echo ucwords( str_replace('_', ' ', $support ) ); ?>
-					</label>
-				</li>
+					</label><br>
 			<?php endif; ?>
 		<?php endforeach; ?>
-		</ul>
+		</fieldset>
 
 		<?php
 		$output = ob_get_clean();
